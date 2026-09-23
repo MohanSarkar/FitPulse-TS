@@ -14,14 +14,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body 
-        className="bg-[#0A0B0C] text-white flex flex-col min-h-screen"
+        className="bg-[#0d0e10] text-white flex flex-col min-h-screen"
+        style={{ backgroundColor: '#0d0e10' }}
         suppressHydrationWarning
       >
         <PlanProvider>
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 bg-[#0d0e10]">{children}</main>
           <Footer />
         </PlanProvider>
       </body>

@@ -19,7 +19,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <p className="text-xs text-gray-500">
-          &copy; {new Date().getFullYear()} FitPulse TS. All rights reserved.
+          &copy; {new Date().getFullYear()} SarkarSoftbd. All rights reserved.
         </p>
       </div>
     </footer>
