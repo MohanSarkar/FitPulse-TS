@@ -68,9 +68,9 @@ export default function MyPlanPage() {
   const sortedTodayPlan = getSortedTodayPlan();
   const sortedSavedWorkouts = getSortedSavedWorkouts();
 
-  // Toast Handlers
+  // Toast Handlers - Explicit String conversion for Context calls
   const handleToggleComplete = (id: string | number, isCompleted: boolean) => {
-    toggleComplete(id);
+    toggleComplete(String(id));
     if (!isCompleted) {
       toast.success('Workout logged — nice work', {
         style: {
@@ -83,7 +83,7 @@ export default function MyPlanPage() {
   };
 
   const handleRemoveFromPlan = (id: string | number) => {
-    removeFromPlan(id);
+    removeFromPlan(String(id));
     toast.success('Removed from today plans', {
       style: {
         background: '#16181C',
@@ -94,7 +94,7 @@ export default function MyPlanPage() {
   };
 
   const handleRemoveFromSaved = (id: string | number) => {
-    removeFromSaved(id);
+    removeFromSaved(String(id));
     toast.success('Removed from saved', {
       style: {
         background: '#16181C',
@@ -281,7 +281,7 @@ export default function MyPlanPage() {
         </div>
       )}
 
-      {/* Tab 2: Saved Content (Row Layout Match) */}
+      {/* Tab 2: Saved Content */}
       {activeTab === 'saved' && (
         <div>
           {sortedSavedWorkouts.length === 0 ? (

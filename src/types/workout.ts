@@ -10,6 +10,14 @@ export interface Workout {
   equipment: string;      
   image: string;          
   instructions: string[]; 
+
+  // Optional fields added to resolve TypeScript build errors
+  imageUrl?: string;
+  tags?: string[];
+  description?: string;
+  difficulty?: string;
+  sets?: string | number;
+  reps?: string | number;
 }
 
 export interface PlanItem {
