@@ -28,10 +28,10 @@ export const PlanProvider = ({ children }: { children: ReactNode }) => {
 
   const addToPlan = (workout: Workout) => {
     if (todayPlan.length >= 5) {
-      return false; // Limit reached
+      return false; 
     }
     if (todayPlan.some((item) => String(item.workout.id) === String(workout.id))) {
-      return false; // Already in plan
+      return false; 
     }
     setTodayPlan((prev) => [...prev, { workout, isCompleted: false }]);
     return true;
@@ -43,7 +43,7 @@ export const PlanProvider = ({ children }: { children: ReactNode }) => {
 
   const saveForLater = (workout: Workout) => {
     if (savedWorkouts.some((item) => String(item.id) === String(workout.id))) {
-      return false; // Already saved
+      return false; 
     }
     setSavedWorkouts((prev) => [...prev, workout]);
     return true;

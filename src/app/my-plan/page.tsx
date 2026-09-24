@@ -5,15 +5,16 @@ import { usePlan } from '@/context/PlanContext';
 import Link from 'next/link';
 import { Clock, Flame, Star, Check, X } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import Image from 'next/image';
 
 export default function MyPlanPage() {
   const { todayPlan, savedWorkouts, removeFromPlan, removeFromSaved, toggleComplete } = usePlan();
-  
+
   const [activeTab, setActiveTab] = useState<'today' | 'saved'>('today');
   const [sortBy, setSortBy] = useState<'duration' | 'calories' | 'rating'>('duration');
 
   // Safe Calories Extractor
-  const getCalories = (workout: any) => {
+  const getCalories = (workout?: { caloriesBurned?: number; calories?: number }) => {
     return Number(workout?.caloriesBurned ?? workout?.calories ?? 0);
   };
 
@@ -141,21 +142,19 @@ export default function MyPlanPage() {
         <div className="bg-[#16181C] p-1.5 rounded-xl border border-gray-800 flex items-center gap-1">
           <button
             onClick={() => setActiveTab('today')}
-            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all ${
-              activeTab === 'today'
-                ? 'bg-[#CCFF00] text-black shadow'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'today'
+              ? 'bg-[#CCFF00] text-black shadow'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
-            Today's Plan
+            {"Today's Plan"}
           </button>
           <button
             onClick={() => setActiveTab('saved')}
-            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all ${
-              activeTab === 'saved'
-                ? 'bg-[#CCFF00] text-black shadow'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'saved'
+              ? 'bg-[#CCFF00] text-black shadow'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             Saved
           </button>
@@ -208,10 +207,12 @@ export default function MyPlanPage() {
                   >
                     <div className="flex items-center gap-4 flex-1">
                       {workout.image ? (
-                        <img
+                        <Image
                           src={workout.image}
                           alt={workout.name}
-                          className="w-24 h-20 rounded-xl object-cover border border-gray-800 shrink-0"
+                          width={96}
+                          height={80}
+                          className="rounded-xl object-cover border border-gray-800 shrink-0"
                         />
                       ) : (
                         <div className="w-24 h-20 rounded-xl bg-gray-800 flex items-center justify-center text-xs text-gray-500 shrink-0">
@@ -255,13 +256,12 @@ export default function MyPlanPage() {
 
                       <button
                         onClick={() => handleToggleComplete(workout.id, !!isCompleted)}
-                        className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-full transition-all ${
-                          isCompleted
-                            ? 'bg-green-500 text-black'
-                            : 'bg-[#CCFF00] hover:bg-[#b3e600] text-black'
-                        }`}
+                        className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-full transition-all ${isCompleted
+                          ? 'bg-green-500 text-black'
+                          : 'bg-[#CCFF00] hover:bg-[#b3e600] text-black'
+                          }`}
                       >
-                        <Check className="w-4 h-4 stroke-[3]" />
+                        <Check className="w-4 h-4 stroke-3" />
                         {isCompleted ? 'Done' : 'Mark as Done'}
                       </button>
 
@@ -313,10 +313,13 @@ export default function MyPlanPage() {
                   >
                     <div className="flex items-center gap-4 flex-1">
                       {workout.image ? (
-                        <img
+                        <Image
                           src={workout.image}
                           alt={workout.name}
+                          width={96}
+                          height={80}
                           className="w-24 h-20 rounded-xl object-cover border border-gray-800 shrink-0"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-24 h-20 rounded-xl bg-gray-800 flex items-center justify-center text-xs text-gray-500 shrink-0">

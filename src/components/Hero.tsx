@@ -13,7 +13,7 @@ export default function Hero() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <div className="bg-[#16181C] rounded-2xl p-8 md:p-12 border border-gray-800/60 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 overflow-hidden shadow-xl">
-        
+
         {/* Left Text Content */}
         <div className="flex-1 space-y-6 text-left max-w-xl">
           {/* Eyebrow Badge */}

@@ -40,12 +40,12 @@ export default function WorkoutDetailPage({
   };
 
   // Check directly from Context
-  const isSavedInContext = workout 
-    ? savedWorkouts.some((item) => String(item.id) === String(workout.id)) 
+  const isSavedInContext = workout
+    ? savedWorkouts.some((item) => String(item.id) === String(workout.id))
     : false;
 
-  const isInPlanInContext = workout 
-    ? todayPlan.some((item) => String(item.workout.id) === String(workout.id)) 
+  const isInPlanInContext = workout
+    ? todayPlan.some((item) => String(item.workout.id) === String(workout.id))
     : false;
 
   useEffect(() => {
@@ -134,7 +134,7 @@ export default function WorkoutDetailPage({
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6 bg-[#0B0C0E] text-white min-h-screen relative">
-      
+
       {/* Toast Stack Container */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
@@ -148,7 +148,7 @@ export default function WorkoutDetailPage({
 
       {/* Main Grid Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        
+
         {/* Left Image */}
         <div className="lg:col-span-5 relative min-h-[420px] lg:min-h-full w-full rounded-2xl overflow-hidden bg-[#16181C] border border-gray-800/60 shadow-xl">
           {imageSource ? (
@@ -169,7 +169,7 @@ export default function WorkoutDetailPage({
 
         {/* Right Details */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
-          
+
           <div className="space-y-3">
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight uppercase text-white">
               {workout.name}
@@ -254,11 +254,10 @@ export default function WorkoutDetailPage({
 
             <button
               onClick={handleSaveForLater}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all border ${
-                isSavedInContext
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all border ${isSavedInContext
                   ? 'border-[#CCFF00] text-[#CCFF00] bg-[#CCFF00]/10'
                   : 'border-gray-700 bg-[#121418] text-white hover:bg-gray-800'
-              }`}
+                }`}
             >
               <Bookmark className="w-4 h-4" />
               {isSavedInContext ? 'Saved' : 'Save for later'}

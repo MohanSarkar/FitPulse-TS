@@ -17,7 +17,7 @@ export default function Library() {
         setLoading(true);
         const res = await fetch('https://api.abcz.workers.dev/api/fitlog');
         if (!res.ok) throw new Error('Failed to fetch workouts data.');
-        
+
         // Asserting the API response as Workout array
         const data: Workout[] = await res.json();
         setWorkouts(data);
@@ -37,7 +37,7 @@ export default function Library() {
 
   return (
     <section id="workout-library" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      
+
       {/* Section Header */}
       <div className="mb-8">
         <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
