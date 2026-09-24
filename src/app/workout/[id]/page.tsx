@@ -5,23 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Plus, Bookmark, Check, Loader2 } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
-
-interface Workout {
-  id: string | number;
-  name: string;
-  description: string;
-  tags?: string[];
-  image?: string;
-  imageUrl?: string;
-  equipment?: string;
-  difficulty?: string;
-  sets?: string | number;
-  reps?: string | number;
-  duration?: number;
-  calories?: number;
-  rating?: number;
-  instructions?: string[];
-}
+import ToastContainer, { ToastMessage } from '@/components/Toast';
+import { Workout } from '@/types/workout';
 
 export default function WorkoutDetailPage({
   params,
@@ -31,11 +16,37 @@ export default function WorkoutDetailPage({
   const resolvedParams = use(params);
   const workoutId = resolvedParams.id;
 
-  const { addToPlan, saveWorkout, todayPlan, savedWorkouts } = usePlan();
+  // Context variables
+  const { todayPlan, savedWorkouts, addToPlan, saveForLater } = usePlan();
 
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Stacked Toast list state
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = (message: string, type: 'success' | 'error' = 'success') => {
+    const newToast: ToastMessage = {
+      id: Date.now() + Math.random(),
+      message,
+      type,
+    };
+    setToasts((prevToasts) => [...prevToasts, newToast]);
+  };
+
+  const removeToast = (id: number) => {
+    setToasts((prevToasts) => prevToasts.filter((t) => t.id !== id));
+  };
+
+  // Check directly from Context
+  const isSavedInContext = workout 
+    ? savedWorkouts.some((item) => String(item.id) === String(workout.id)) 
+    : false;
+
+  const isInPlanInContext = workout 
+    ? todayPlan.some((item) => String(item.workout.id) === String(workout.id)) 
+    : false;
 
   useEffect(() => {
     async function fetchWorkout() {
@@ -49,9 +60,15 @@ export default function WorkoutDetailPage({
         }
 
         const data = await res.json();
-        setWorkout(data.data || data);
-      } catch (err: any) {
-        setError(err.message || 'Something went wrong');
+        const workoutData = data.data || data;
+        setWorkout(workoutData);
+
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Something went wrong');
+        }
       } finally {
         setLoading(false);
       }
@@ -87,15 +104,40 @@ export default function WorkoutDetailPage({
   }
 
   const imageSource = workout.imageUrl || workout.image || '';
-  const isInTodayPlan = todayPlan.some((item) => String(item.workout.id) === String(workout.id));
-  const isSaved = savedWorkouts.some((item) => String(item.id) === String(workout.id));
+  const tagsList = workout.tags && workout.tags.length > 0 ? workout.tags : ['Arms'];
 
-  // Fallback tags if API doesn't return them
-  const tagsList = workout.tags && workout.tags.length > 0 ? workout.tags : ['Back', 'Arms'];
+  // Handlers
+  const handleAddToPlan = () => {
+    if (isInPlanInContext) {
+      addToast('Already in your plan', 'error');
+      return;
+    }
+
+    if (todayPlan.length >= 5) {
+      addToast("You can only add up to 5 workouts!", 'error');
+      return;
+    }
+
+    addToPlan(workout);
+    addToast("Added to today's plan", 'success');
+  };
+
+  const handleSaveForLater = () => {
+    if (isSavedInContext) {
+      addToast('Already in your saved list', 'error');
+      return;
+    }
+
+    saveForLater(workout);
+    addToast('Saved for later', 'success');
+  };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6 bg-[#0B0C0E] text-white min-h-screen">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6 bg-[#0B0C0E] text-white min-h-screen relative">
       
+      {/* Toast Stack Container */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+
       {/* Back Button */}
       <Link
         href="/"
@@ -107,7 +149,7 @@ export default function WorkoutDetailPage({
       {/* Main Grid Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         
-        {/* Left Side: Exact Image Container */}
+        {/* Left Image */}
         <div className="lg:col-span-5 relative min-h-[420px] lg:min-h-full w-full rounded-2xl overflow-hidden bg-[#16181C] border border-gray-800/60 shadow-xl">
           {imageSource ? (
             <Image
@@ -125,7 +167,7 @@ export default function WorkoutDetailPage({
           )}
         </div>
 
-        {/* Right Side: Details */}
+        {/* Right Details */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
           
           <div className="space-y-3">
@@ -136,7 +178,6 @@ export default function WorkoutDetailPage({
               {workout.description}
             </p>
 
-            {/* Neon Tags */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
               {tagsList.map((tag, idx) => (
                 <span
@@ -149,35 +190,35 @@ export default function WorkoutDetailPage({
             </div>
           </div>
 
-          {/* Details Card */}
+          {/* Table Details */}
           <div className="bg-[#121418] border border-gray-800/80 rounded-xl overflow-hidden divide-y divide-gray-800/50">
             <div className="flex justify-between items-center px-4 py-2.5 text-xs">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Equipment</span>
-              <span className="text-gray-200 font-semibold">{workout.equipment || 'Pull-up Bar'}</span>
+              <span className="text-gray-200 font-semibold">{workout.equipment || 'Medicine Ball'}</span>
             </div>
             <div className="flex justify-between items-center px-4 py-2.5 text-xs">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Difficulty</span>
-              <span className="text-gray-200 font-semibold">{workout.difficulty || 'Intermediate'}</span>
+              <span className="text-gray-200 font-semibold">{workout.difficulty || 'Beginner'}</span>
             </div>
             <div className="flex justify-between items-center px-4 py-2.5 text-xs">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Sets</span>
-              <span className="text-gray-200 font-semibold">{workout.sets || '4'}</span>
+              <span className="text-gray-200 font-semibold">{workout.sets || '3'}</span>
             </div>
             <div className="flex justify-between items-center px-4 py-2.5 text-xs">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Reps</span>
-              <span className="text-gray-200 font-semibold">{workout.reps || '6-10'}</span>
+              <span className="text-gray-200 font-semibold">{workout.reps || '16-20'}</span>
             </div>
             <div className="flex justify-between items-center px-4 py-2.5 text-xs">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Duration</span>
-              <span className="text-gray-200 font-semibold">{workout.duration ? `${workout.duration} min` : '15 min'}</span>
+              <span className="text-gray-200 font-semibold">{workout.duration ? `${workout.duration} min` : '8 min'}</span>
             </div>
             <div className="flex justify-between items-center px-4 py-2.5 text-xs">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Calories</span>
-              <span className="text-gray-200 font-semibold">{workout.calories ? `${workout.calories} kcal` : '120 kcal'}</span>
+              <span className="text-gray-200 font-semibold">{workout.calories ? `${workout.calories} kcal` : '80 kcal'}</span>
             </div>
             <div className="flex justify-between items-center px-4 py-2.5 text-xs">
               <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Rating</span>
-              <span className="text-gray-200 font-semibold">{workout.rating || '4.7'}</span>
+              <span className="text-gray-200 font-semibold">{workout.rating || '4.1'}</span>
             </div>
           </div>
 
@@ -188,10 +229,10 @@ export default function WorkoutDetailPage({
             </h2>
             <ol className="space-y-2 text-xs text-gray-300">
               {(workout.instructions && workout.instructions.length > 0 ? workout.instructions : [
-                'Hang from the bar with a shoulder-width overhand grip.',
-                'Brace your core and pull your chest toward the bar.',
-                'Pause at the top with elbows tucked, then lower with control.',
-                'Avoid kipping unless you are training a specific variation.'
+                'Sit with a slight lean back and feet lightly off the floor.',
+                'Hold the ball at chest height and rotate to one side.',
+                'Tap the floor, then rotate to the other side.',
+                'Move from the ribcage, not just the arms.'
               ]).map((step, idx) => (
                 <li key={idx} className="flex gap-2 leading-relaxed">
                   <span className="font-bold text-white min-w-[14px]">{idx + 1}.</span>
@@ -201,31 +242,26 @@ export default function WorkoutDetailPage({
             </ol>
           </div>
 
-          {/* Buttons */}
+          {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
-              onClick={() => addToPlan(workout)}
-              disabled={isInTodayPlan}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all ${
-                isInTodayPlan
-                  ? 'bg-gray-800 text-gray-400 cursor-not-allowed'
-                  : 'bg-[#CCFF00] hover:bg-[#b3e600] text-black shadow-lg shadow-[#CCFF00]/10'
-              }`}
+              onClick={handleAddToPlan}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-[#CCFF00] hover:bg-[#b3e600] text-black shadow-lg shadow-[#CCFF00]/10"
             >
-              {isInTodayPlan ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {isInTodayPlan ? "Added to today's plan" : "Add to today's plan"}
+              {isInPlanInContext ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+              {isInPlanInContext ? "Added to today's plan" : "Add to today's plan"}
             </button>
 
             <button
-              onClick={() => saveWorkout(workout)}
+              onClick={handleSaveForLater}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all border ${
-                isSaved
+                isSavedInContext
                   ? 'border-[#CCFF00] text-[#CCFF00] bg-[#CCFF00]/10'
                   : 'border-gray-700 bg-[#121418] text-white hover:bg-gray-800'
               }`}
             >
               <Bookmark className="w-4 h-4" />
-              {isSaved ? 'Saved' : 'Save for later'}
+              {isSavedInContext ? 'Saved' : 'Save for later'}
             </button>
           </div>
 

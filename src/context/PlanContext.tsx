@@ -28,36 +28,35 @@ export const PlanProvider = ({ children }: { children: ReactNode }) => {
 
   const addToPlan = (workout: Workout) => {
     if (todayPlan.length >= 5) {
-      alert("You can only add up to 5 workouts to today's plan!");
-      return;
+      return false; // Limit reached
     }
-    if (todayPlan.some((item) => item.workout.id === workout.id)) {
-      alert('This workout is already in your plan!');
-      return;
+    if (todayPlan.some((item) => String(item.workout.id) === String(workout.id))) {
+      return false; // Already in plan
     }
     setTodayPlan((prev) => [...prev, { workout, isCompleted: false }]);
+    return true;
   };
 
-  const removeFromPlan = (id: string) => {
-    setTodayPlan((prev) => prev.filter((item) => item.workout.id !== id));
+  const removeFromPlan = (id: string | number) => {
+    setTodayPlan((prev) => prev.filter((item) => String(item.workout.id) !== String(id)));
   };
 
   const saveForLater = (workout: Workout) => {
-    if (savedWorkouts.some((item) => item.id === workout.id)) {
-      alert('Already saved!');
-      return;
+    if (savedWorkouts.some((item) => String(item.id) === String(workout.id))) {
+      return false; // Already saved
     }
     setSavedWorkouts((prev) => [...prev, workout]);
+    return true;
   };
 
-  const removeFromSaved = (id: string) => {
-    setSavedWorkouts((prev) => prev.filter((item) => item.id !== id));
+  const removeFromSaved = (id: string | number) => {
+    setSavedWorkouts((prev) => prev.filter((item) => String(item.id) !== String(id)));
   };
 
-  const toggleComplete = (id: string) => {
+  const toggleComplete = (id: string | number) => {
     setTodayPlan((prev) =>
       prev.map((item) =>
-        item.workout.id === id ? { ...item, isCompleted: !item.isCompleted } : item
+        String(item.workout.id) === String(id) ? { ...item, isCompleted: !item.isCompleted } : item
       )
     );
   };
